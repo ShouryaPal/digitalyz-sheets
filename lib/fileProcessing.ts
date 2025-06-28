@@ -14,7 +14,6 @@ export async function processCSVFile(file: File): Promise<{ headers: string[]; d
     throw new Error("CSV file is empty.");
   }
 
-  // Handle multi-section CSV (sections separated by empty rows)
   let currentSection: any[][] = [];
   const sections: { headers: string[]; data: any[][] }[] = [];
   
@@ -49,8 +48,6 @@ export async function processCSVFile(file: File): Promise<{ headers: string[]; d
       data: currentSection.slice(1),
     });
   }
-
-  // If no sections found, treat entire file as one section
   if (sections.length === 0 && data.length > 1) {
     sections.push({ headers: data[0], data: data.slice(1) });
   }

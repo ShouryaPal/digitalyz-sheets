@@ -82,7 +82,6 @@ export default function Home() {
         throw new Error("No data sections found in the file.");
       }
 
-      // AI mapping for each section
       setProcessingStatus("Mapping headers with AI...");
       const entityBuckets: Entities = {
         clients: { headers: [], data: [] },
@@ -98,11 +97,10 @@ export default function Home() {
 
         const mappingResult = await mapHeadersWithGemini(
           section.headers,
-          section.data.slice(0, 3), // Send only first 3 rows as samples
+          section.data.slice(0, 3), 
         );
 
         if (mappingResult.entity && entityBuckets[mappingResult.entity]) {
-          // Map data to new header order
           const headerIdxMap = mappingResult.mappedHeaders.map((h) =>
             h === "null" ? -1 : section.headers.indexOf(h),
           );
@@ -122,7 +120,6 @@ export default function Home() {
 
       setEntities(entityBuckets);
 
-      // Validation
       setProcessingStatus("Validating data...");
       const newErrors: ValidationErrors = { clients: {}, workers: {}, tasks: {} };
 
@@ -134,16 +131,13 @@ export default function Home() {
           const rowObj = Object.fromEntries(
             headers.map((h, i) => [h === "null" ? `unknown_${i}` : h, row[i]]),
           );
-          
-          // Schema validation
+
           const rowErrors = validateRow(schema, rowObj, rowIdx, headers);
           Object.assign(newErrors[entity], rowErrors);
-          
-          // Enhanced field-specific validation
+
           headers.forEach((header, colIdx) => {
             const value = row[colIdx];
-            
-            // Numeric field validations
+
             if (header === "PriorityLevel") {
               const error = validatePriorityLevel(value);
               if (error) newErrors[entity][`${rowIdx}-${colIdx}`] = error;
@@ -167,10 +161,8 @@ export default function Home() {
         });
       });
 
-      // Cross-entity relationship validation
       const relationshipErrors = validateRelationships(entityBuckets);
-      
-      // Merge relationship errors into the appropriate entity error objects
+
       Object.entries(relationshipErrors).forEach(([key, error]) => {
         const [entity, rowIdx, colIdx] = key.split('-');
         if (entity && rowIdx && colIdx && newErrors[entity as EntityType]) {
@@ -208,7 +200,6 @@ export default function Home() {
       return updated;
     });
 
-    // Re-validate the edited row
     setTimeout(() => {
       setErrors((prev) => {
         const updated = { ...prev };
@@ -222,12 +213,10 @@ export default function Home() {
           ]),
         );
 
-        // Clear old errors for this row
         Object.keys(updated[entity]).forEach((key) => {
           if (key.startsWith(`${rowIdx}-`)) delete updated[entity][key];
         });
 
-        // Schema validation
         const rowErrors = validateRow(
           entitySchemas[entity],
           rowObj,
@@ -235,8 +224,7 @@ export default function Home() {
           headers,
         );
         Object.assign(updated[entity], rowErrors);
-        
-        // Enhanced field-specific validation for the edited cell
+
         const header = headers[colIdx];
         if (header === "PriorityLevel") {
           const error = validatePriorityLevel(value);
@@ -257,8 +245,7 @@ export default function Home() {
           const error = validatePreferredPhases(value);
           if (error) updated[entity][`${rowIdx}-${colIdx}`] = error;
         }
-        
-        // Re-validate relationships for this entity
+
         const relationshipErrors = validateRelationships(entities);
         Object.entries(relationshipErrors).forEach(([key, error]) => {
           const [relEntity, relRowIdx, relColIdx] = key.split('-');
@@ -317,8 +304,7 @@ export default function Home() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
-            {/* Entity grids */}
+            
             {(entities.clients.data.length > 0 ||
               entities.workers.data.length > 0 ||
               entities.tasks.data.length > 0) && (
@@ -339,8 +325,6 @@ export default function Home() {
                 )}
               </div>
             )}
-
-            {/* Natural language search placeholder */}
             <div className="mt-8">
               <Label className="text-md font-medium">
                 Natural Language Search (coming soon)

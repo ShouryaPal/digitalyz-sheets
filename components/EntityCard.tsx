@@ -49,7 +49,6 @@ export function EntityCard({
           </div>
         </div>
 
-        {/* AI mapping info */}
         {entityData.mappingInfo && (
           <Alert>
             <Info className="h-4 w-4" />
@@ -63,7 +62,6 @@ export function EntityCard({
           </Alert>
         )}
 
-        {/* Validation summary */}
         <div className="mt-2">
           {Object.keys(errors).length > 0 ? (
             <Alert variant="destructive">
@@ -81,7 +79,6 @@ export function EntityCard({
           )}
         </div>
 
-        {/* Relationship validation summary */}
         {Object.keys(errors).some(
           (key) =>
             errors[key].includes("not found") ||

@@ -81,7 +81,6 @@ export function EditableGrid({
 
   return (
     <div className="space-y-4">
-      {/* Header mapping visualization */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
         <div>
           <h4 className="font-medium text-sm mb-2">Expected Headers:</h4>
@@ -117,7 +116,6 @@ export function EditableGrid({
         </div>
       </div>
 
-      {/* Data table */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

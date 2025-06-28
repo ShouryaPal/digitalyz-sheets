@@ -17,7 +17,6 @@ export async function mapHeadersWithGemini(
 
     const result = await res.json();
 
-    // Ensure all required fields exist
     return {
       entity: result.entity || null,
       mappedHeaders: result.mappedHeaders || rawHeaders,

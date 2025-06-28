@@ -2,7 +2,6 @@ import { MappingResult } from "@/types/entities";
 
 type EntityType = "clients" | "workers" | "tasks";
 
-// Cross-entity relationship validation
 export function validateRelationships(
   entities: {
     clients: { headers: string[]; data: any[][]; mappingInfo?: MappingResult };
@@ -11,8 +10,7 @@ export function validateRelationships(
   }
 ): Record<string, string> {
   const relationshipErrors: Record<string, string> = {};
-  
-  // Extract all task IDs from tasks entity
+
   const taskIds = new Set<string>();
   if (entities.tasks.data.length > 0) {
     const taskIdIndex = entities.tasks.headers.indexOf("TaskID");
@@ -24,8 +22,7 @@ export function validateRelationships(
       });
     }
   }
-  
-  // Extract all worker skills from workers entity
+
   const workerSkills = new Set<string>();
   if (entities.workers.data.length > 0) {
     const skillsIndex = entities.workers.headers.indexOf("Skills");
@@ -40,8 +37,7 @@ export function validateRelationships(
       });
     }
   }
-  
-  // Validate client requested tasks exist
+
   if (entities.clients.data.length > 0 && taskIds.size > 0) {
     const requestedTasksIndex = entities.clients.headers.indexOf("RequestedTaskIDs");
     if (requestedTasksIndex !== -1) {
@@ -57,8 +53,7 @@ export function validateRelationships(
       });
     }
   }
-  
-  // Validate task required skills are covered by workers
+
   if (entities.tasks.data.length > 0 && workerSkills.size > 0) {
     const requiredSkillsIndex = entities.tasks.headers.indexOf("RequiredSkills");
     if (requiredSkillsIndex !== -1) {
