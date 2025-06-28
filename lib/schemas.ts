@@ -20,7 +20,7 @@ export const workerSchema = z.object({
     .int()
     .min(1, "MaxLoadPerPhase must be at least 1"),
   WorkerGroup: z.string().optional(),
-  QualificationLevel: z.string().optional(),
+  QualificationLevel: z.coerce.number().int().min(1).max(10).optional(),
 });
 
 export const taskSchema = z.object({

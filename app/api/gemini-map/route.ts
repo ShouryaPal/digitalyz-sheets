@@ -34,7 +34,7 @@ Field Descriptions:
 - AvailableSlots: Array of phase numbers when worker is available (e.g. [1,3,5])
 - MaxLoadPerPhase: Integer maximum workload per phase
 - WorkerGroup: Team/department/group assignment
-- QualificationLevel: Skill level/experience rating
+- QualificationLevel: Integer skill level/experience rating (1-10)
 
 **3. TASKS Entity - Expected Headers:**
 ["TaskID", "TaskName", "Category", "Duration", "RequiredSkills", "PreferredPhases", "MaxConcurrent"]

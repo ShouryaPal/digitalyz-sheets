@@ -119,6 +119,19 @@ export function validatePreferredPhases(value: any): string | null {
   return null;
 }
 
+export function validateQualificationLevel(value: any): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  
+  const numError = validateNumericField(value, "QualificationLevel");
+  if (numError) return numError;
+  
+  const num = Number(value);
+  if (num < 1 || num > 10) {
+    return "QualificationLevel must be between 1 and 10";
+  }
+  return null;
+}
+
 export function validateRow(
   schema: z.ZodObject<any>,
   row: any,

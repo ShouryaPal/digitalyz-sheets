@@ -22,7 +22,8 @@ import {
   validateMaxLoadPerPhase,
   validateMaxConcurrent,
   validateAvailableSlots,
-  validatePreferredPhases
+  validatePreferredPhases,
+  validateQualificationLevel
 } from "@/components/validation/validationUtils";
 import { validateRelationships } from "@/components/validation/relationshipValidation";
 import { entitySchemas } from "@/lib/schemas";
@@ -156,6 +157,9 @@ export default function Home() {
             } else if (header === "PreferredPhases") {
               const error = validatePreferredPhases(value);
               if (error) newErrors[entity][`${rowIdx}-${colIdx}`] = error;
+            } else if (header === "QualificationLevel") {
+              const error = validateQualificationLevel(value);
+              if (error) newErrors[entity][`${rowIdx}-${colIdx}`] = error;
             }
           });
         });
@@ -243,6 +247,9 @@ export default function Home() {
           if (error) updated[entity][`${rowIdx}-${colIdx}`] = error;
         } else if (header === "PreferredPhases") {
           const error = validatePreferredPhases(value);
+          if (error) updated[entity][`${rowIdx}-${colIdx}`] = error;
+        } else if (header === "QualificationLevel") {
+          const error = validateQualificationLevel(value);
           if (error) updated[entity][`${rowIdx}-${colIdx}`] = error;
         }
 
