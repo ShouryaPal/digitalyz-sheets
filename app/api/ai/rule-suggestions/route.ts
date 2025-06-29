@@ -145,7 +145,7 @@ Now analyze the data and generate rule suggestions.
       if (jsonMatch) {
         try {
           suggestions = JSON.parse(jsonMatch[0]);
-        } catch (e2) {
+        } catch {
           return NextResponse.json({
             suggestions: [],
             error: "Failed to parse AI response",

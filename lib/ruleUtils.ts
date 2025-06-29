@@ -1,4 +1,15 @@
-import { Rule, RulesConfig, RuleType, Entities } from '@/types/entities';
+import { 
+  Rule, 
+  RuleType, 
+  Entities, 
+  RulesConfig,
+  CoRunRule,
+  SlotRestrictionRule,
+  LoadLimitRule,
+  PhaseWindowRule,
+  PatternMatchRule,
+  PrecedenceOverrideRule
+} from '@/types/entities';
 
 export function generateRuleId(type: RuleType): string {
   const timestamp = Date.now();
@@ -35,7 +46,7 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
   // Type-specific validation
   switch (rule.type) {
     case "coRun":
-      const coRunRule = rule as any;
+      const coRunRule = rule as CoRunRule;
       if (!coRunRule.tasks || coRunRule.tasks.length < 2) {
         errors.push("Co-run rule requires at least 2 tasks");
       }
@@ -49,7 +60,7 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
       break;
 
     case "slotRestriction":
-      const slotRule = rule as any;
+      const slotRule = rule as SlotRestrictionRule;
       if (!slotRule.groupName || slotRule.groupName.trim().length === 0) {
         errors.push("Group name is required for slot restriction rule");
       }
@@ -71,7 +82,7 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
       break;
 
     case "loadLimit":
-      const loadRule = rule as any;
+      const loadRule = rule as LoadLimitRule;
       if (!loadRule.workerGroup || loadRule.workerGroup.trim().length === 0) {
         errors.push("Worker group is required for load limit rule");
       }
@@ -86,13 +97,14 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
       break;
 
     case "phaseWindow":
-      const phaseRule = rule as any;
+      const phaseRule = rule as PhaseWindowRule;
       if (!phaseRule.taskId || phaseRule.taskId.trim().length === 0) {
         errors.push("Task ID is required for phase window rule");
       }
       if (!phaseRule.allowedPhases || 
           (Array.isArray(phaseRule.allowedPhases) && phaseRule.allowedPhases.length === 0) ||
-          (typeof phaseRule.allowedPhases === 'object' && !phaseRule.allowedPhases.start && !phaseRule.allowedPhases.end)) {
+          (typeof phaseRule.allowedPhases === 'object' && !Array.isArray(phaseRule.allowedPhases) && 
+           !('start' in phaseRule.allowedPhases) && !('end' in phaseRule.allowedPhases))) {
         errors.push("Allowed phases must be specified");
       }
       // Validate task exists
@@ -103,7 +115,7 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
       break;
 
     case "patternMatch":
-      const patternRule = rule as any;
+      const patternRule = rule as PatternMatchRule;
       if (!patternRule.regex || patternRule.regex.trim().length === 0) {
         errors.push("Regex pattern is required for pattern match rule");
       }
@@ -116,13 +128,13 @@ export function validateRule(rule: Rule, entities: Entities): { isValid: boolean
       // Validate regex
       try {
         new RegExp(patternRule.regex);
-      } catch (e) {
+      } catch {
         errors.push("Invalid regex pattern");
       }
       break;
 
     case "precedenceOverride":
-      const precedenceRule = rule as any;
+      const precedenceRule = rule as PrecedenceOverrideRule;
       if (!precedenceRule.scope) {
         errors.push("Scope is required for precedence override rule");
       }

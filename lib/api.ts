@@ -1,4 +1,4 @@
-import { MappingResult } from "@/types/entities";
+import { MappingResult, Entities, AINaturalLanguageResponse } from "@/types/entities";
 
 // Define a more specific type for cell values
 type CellValue = string | number | boolean | null | undefined;
@@ -42,9 +42,9 @@ export async function mapHeadersWithGemini(
 
 export async function processNaturalLanguageRequest(
   request: string,
-  entities: any,
-  context?: any
-): Promise<any> {
+  entities: Entities,
+  context?: { existingRules?: unknown[] }
+): Promise<AINaturalLanguageResponse> {
   try {
     const response = await fetch('/api/ai/natural-language', {
       method: 'POST',
@@ -70,9 +70,9 @@ export async function processNaturalLanguageRequest(
 }
 
 export async function getRuleSuggestions(
-  entities: any,
-  existingRules: any[] = []
-): Promise<any> {
+  entities: Entities,
+  existingRules: unknown[] = []
+): Promise<{ suggestions: unknown[]; totalFound: number; error?: string }> {
   try {
     const response = await fetch('/api/ai/rule-suggestions', {
       method: 'POST',

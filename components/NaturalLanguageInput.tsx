@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Sparkles, Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { Rule, Entities } from '@/types/entities';
+import { Rule, Entities, AINaturalLanguageResponse } from '@/types/entities';
 import { processNaturalLanguageRequest } from '@/lib/api';
 
 interface NaturalLanguageInputProps {
@@ -17,7 +17,7 @@ interface NaturalLanguageInputProps {
 export function NaturalLanguageInput({ entities, onRuleCreated, disabled = false }: NaturalLanguageInputProps) {
   const [request, setRequest] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AINaturalLanguageResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,7 +74,7 @@ export function NaturalLanguageInput({ entities, onRuleCreated, disabled = false
               className="text-sm"
             />
             <div className="text-xs text-gray-500">
-              Examples: "Engineering team can handle max 3 tasks per phase", "VIP clients get priority 1"
+              Examples: &quot;Engineering team can handle max 3 tasks per phase&quot;, &quot;VIP clients get priority 1&quot;
             </div>
           </div>
           
@@ -111,7 +111,7 @@ export function NaturalLanguageInput({ entities, onRuleCreated, disabled = false
           </Alert>
         )}
 
-        {result && result.success && (
+        {result && result.success && result.rule && (
           <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
@@ -122,7 +122,7 @@ export function NaturalLanguageInput({ entities, onRuleCreated, disabled = false
                 </div>
                 <p className="text-sm">{result.reasoning}</p>
                 <div className="text-xs text-green-600">
-                  Confidence: {Math.round(result.confidence * 100)}%
+                  Confidence: {Math.round((result.confidence || 0) * 100)}%
                 </div>
               </div>
             </AlertDescription>

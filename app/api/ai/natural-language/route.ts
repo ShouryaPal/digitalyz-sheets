@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
-import { AINaturalLanguageRequest, AINaturalLanguageResponse, Rule, RuleType } from "@/types/entities";
+import { AINaturalLanguageRequest, AINaturalLanguageResponse } from "@/types/entities";
 
 export const runtime = "edge";
 
@@ -158,7 +158,7 @@ Now process the user's request and generate the appropriate rule.
       if (jsonMatch) {
         try {
           response = JSON.parse(jsonMatch[0]);
-        } catch (e2) {
+        } catch {
           return NextResponse.json({
             success: false,
             error: "Failed to parse AI response",

@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   Plus, 
   Settings, 
   Lightbulb, 
-  MessageSquare, 
   Download,
   Trash2,
   Edit,
@@ -26,7 +24,7 @@ import {
   getRuleTypeDisplayName,
   validateRule 
 } from '@/lib/ruleUtils';
-import { getRuleSuggestions, processNaturalLanguageRequest } from '@/lib/api';
+import { getRuleSuggestions } from '@/lib/api';
 
 interface BusinessRulesManagerProps {
   entities: Entities;
@@ -43,20 +41,14 @@ export function BusinessRulesManager({ entities }: BusinessRulesManagerProps) {
 
   const hasData = Object.values(entities).some(entity => entity.data.length > 0);
 
-  useEffect(() => {
-    if (hasData && rules.length === 0) {
-      generateSuggestions();
-    }
-  }, [hasData, rules.length]);
-
-  const generateSuggestions = async () => {
+  const generateSuggestions = useCallback(async () => {
     if (!hasData) return;
     
     setLoading(true);
     try {
       const result = await getRuleSuggestions(entities, rules);
       if (result.suggestions) {
-        setSuggestions(result.suggestions);
+        setSuggestions(result.suggestions as RuleSuggestion[]);
         setShowSuggestions(true);
       }
     } catch (error) {
@@ -64,7 +56,13 @@ export function BusinessRulesManager({ entities }: BusinessRulesManagerProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [hasData, entities, rules]);
+
+  useEffect(() => {
+    if (hasData && rules.length === 0) {
+      generateSuggestions();
+    }
+  }, [hasData, rules.length, generateSuggestions]);
 
   const handleCreateRule = (ruleType: RuleType) => {
     setSelectedRuleType(ruleType);
