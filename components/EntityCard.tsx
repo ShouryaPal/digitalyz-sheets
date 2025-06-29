@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle, Info } from "lucide-react";
 import { EditableGrid } from "./EditableGrid";
+import { DownloadButton } from "./DownloadButton";
 import { EntityType, EntityData } from "@/types/entities";
 
 // Define a more specific type for cell values
@@ -20,6 +21,7 @@ interface EntityCardProps {
   entityData: EntityData;
   errors: Record<string, string>;
   onEdit: (rowIdx: number, colIdx: number, value: CellValue) => void;
+  onClearErrors?: (entityType: EntityType, rowIdx: number, colIdx: number) => void;
 }
 
 export function EntityCard({
@@ -27,6 +29,7 @@ export function EntityCard({
   entityData,
   errors,
   onEdit,
+  onClearErrors,
 }: EntityCardProps) {
   const getConfidenceBadge = (confidence: number) => {
     if (confidence >= 0.8)
@@ -34,6 +37,16 @@ export function EntityCard({
     if (confidence >= 0.6)
       return <Badge className="bg-yellow-500">Medium Confidence</Badge>;
     return <Badge className="bg-red-500">Low Confidence</Badge>;
+  };
+
+  const handleEdit = (rowIdx: number, colIdx: number, value: CellValue) => {
+    // Clear the specific error for this cell when user starts editing
+    if (onClearErrors) {
+      onClearErrors(entity, rowIdx, colIdx);
+    }
+    
+    // Call the parent's onEdit function
+    onEdit(rowIdx, colIdx, value);
   };
 
   return (
@@ -50,6 +63,11 @@ export function EntityCard({
               {entityData.data.length} rows, {entityData.headers.length} columns
             </CardDescription>
           </div>
+          <DownloadButton 
+            entityType={entity} 
+            entityData={entityData}
+            disabled={entityData.data.length === 0}
+          />
         </div>
 
         {entityData.mappingInfo && (
@@ -101,7 +119,7 @@ export function EntityCard({
         <EditableGrid
           data={entityData.data}
           headers={entityData.headers}
-          onEdit={onEdit}
+          onEdit={handleEdit}
           errors={errors}
           entityType={entity}
         />

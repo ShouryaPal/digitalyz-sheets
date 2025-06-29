@@ -15,6 +15,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import { EntityCard } from "@/components/EntityCard";
+import { GlobalDownloadButton } from "@/components/GlobalDownloadButton";
 import { 
   validateRow,
   validatePriorityLevel,
@@ -50,6 +51,17 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>("");
+
+  const handleClearErrors = (entityType: EntityType, rowIdx: number, colIdx: number) => {
+    setErrors(prev => {
+      const updated = { ...prev };
+      const errorKey = `${rowIdx}-${colIdx}`;
+      if (updated[entityType][errorKey]) {
+        delete updated[entityType][errorKey];
+      }
+      return updated;
+    });
+  };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -203,6 +215,10 @@ export default function Home() {
       return updated;
     });
 
+    // Clear the specific error for this cell immediately
+    handleClearErrors(entity, rowIdx, colIdx);
+
+    // Re-validate after a short delay to allow for new errors if the value is still invalid
     setTimeout(() => {
       setErrors((prev) => {
         const updated = { ...prev };
@@ -251,8 +267,10 @@ export default function Home() {
         
         return updated;
       });
-    }, 0);
+    }, 100);
   }
+
+  const hasData = Object.values(entities).some(entity => entity.data.length > 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -299,6 +317,12 @@ export default function Home() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            {hasData && (
+              <div className="flex justify-end">
+                <GlobalDownloadButton entities={entities} />
+              </div>
+            )}
             
             {(entities.clients.data.length > 0 ||
               entities.workers.data.length > 0 ||
@@ -315,6 +339,7 @@ export default function Home() {
                         onEdit={(rowIdx, colIdx, value) =>
                           handleEdit(entity, rowIdx, colIdx, value)
                         }
+                        onClearErrors={handleClearErrors}
                       />
                     ) : null,
                 )}

@@ -64,6 +64,7 @@ export function EditableGrid({
   }, [updatedData, entityType, data]);
 
   const handleInputChange = (rowIdx: number, colIdx: number, value: string) => {
+    // Update local state immediately for responsive UI
     setLocalData(prev => {
       const newData = [...prev];
       if (!newData[rowIdx]) {
@@ -74,8 +75,10 @@ export function EditableGrid({
       return newData;
     });
 
+    // Update the Zustand store
     updateStoreCell(entityType, rowIdx, colIdx, value);
 
+    // Call parent's onEdit function with error clearing capability
     onEdit(rowIdx, colIdx, value);
   };
 
