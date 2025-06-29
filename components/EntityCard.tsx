@@ -13,7 +13,6 @@ import { EditableGrid } from "./EditableGrid";
 import { DownloadButton } from "./DownloadButton";
 import { EntityType, EntityData } from "@/types/entities";
 
-// Define a more specific type for cell values
 type CellValue = string | number | boolean | null | undefined;
 
 interface EntityCardProps {
@@ -40,12 +39,10 @@ export function EntityCard({
   };
 
   const handleEdit = (rowIdx: number, colIdx: number, value: CellValue) => {
-    // Clear the specific error for this cell when user starts editing
     if (onClearErrors) {
       onClearErrors(entity, rowIdx, colIdx);
     }
     
-    // Call the parent's onEdit function
     onEdit(rowIdx, colIdx, value);
   };
 

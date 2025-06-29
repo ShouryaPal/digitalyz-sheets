@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { EntityType } from "@/types/entities";
 import { useUpdatedDataStore } from "@/lib/updatedDataStore";
 
-// Define a more specific type for cell values
 type CellValue = string | number | boolean | null | undefined;
 
 interface EditableGridProps {
@@ -22,7 +21,6 @@ interface EditableGridProps {
   entityType: EntityType;
 }
 
-// Expected headers for different entity types
 const expectedHeaders: Record<EntityType, string[]> = {
   clients: ["ClientID", "ClientName", "PriorityLevel", "RequestedTaskIDs", "GroupTag", "AttributesJSON"],
   workers: ["WorkerID", "WorkerName", "Skills", "AvailableSlots", "MaxLoadPerPhase", "WorkerGroup", "QualificationLevel"],
@@ -37,8 +35,7 @@ export function EditableGrid({
   entityType,
 }: EditableGridProps) {
   const expectedHeadersForEntity = expectedHeaders[entityType];
-  
-  // Zustand store for managing updated data
+
   const {
     updatedData,
     initializeData,
@@ -48,6 +45,7 @@ export function EditableGrid({
   } = useUpdatedDataStore();
 
   const [localData, setLocalData] = useState<CellValue[][]>([]);
+  
   useEffect(() => {
     if (data && data.length > 0) {
       initializeData(entityType, data);
@@ -75,10 +73,7 @@ export function EditableGrid({
       return newData;
     });
 
-    // Update the Zustand store
     updateStoreCell(entityType, rowIdx, colIdx, value);
-
-    // Call parent's onEdit function with error clearing capability
     onEdit(rowIdx, colIdx, value);
   };
 
@@ -96,6 +91,7 @@ export function EditableGrid({
     return modifiedCells.includes(`${rowIdx}-${colIdx}`);
   };
 
+  // Filter data but maintain stable row indices for better UX
   const filteredData = localData.filter((row) => {
     return row.some((cell) => {
       const value = cell?.toString().trim();
@@ -152,14 +148,15 @@ export function EditableGrid({
           </div>
         </div>
       )}
-      <div className="overflow-x-auto">
-        <Table>
+      
+      <div className="overflow-x-auto border rounded-lg">
+        <Table className="w-full">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/50">
               {headers.map((header, idx) => (
-                <TableHead key={idx} className="min-w-32">
+                <TableHead key={idx} className="min-w-32 h-16 px-3 py-2">
                   <div className="space-y-1">
-                    <div className="font-medium">
+                    <div className="font-medium text-sm">
                       {header}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -173,7 +170,7 @@ export function EditableGrid({
           <TableBody>
             {filteredData.map((row, rowIdx) => {
               return (
-              <TableRow key={rowIdx}>
+              <TableRow key={rowIdx} className="hover:bg-muted/30">
                 {headers.map((header, colIdx) => {
                   const cellError = getCellError(rowIdx, colIdx);
                   const hasError = Boolean(cellError);
@@ -181,36 +178,46 @@ export function EditableGrid({
                   const isModified = isCellModified(rowIdx, colIdx);
                   
                   return (
-                    <TableCell key={colIdx} className="p-2">
-                      <div className="space-y-1">
-                        <input
-                          type="text"
-                          className={`w-full border rounded px-3 py-2 text-sm transition-colors ${
-                            hasError
-                              ? isRelError
-                                ? "border-red-600 bg-red-50 text-red-800 focus:border-red-700 focus:ring-red-200"
-                                : "border-red-500 bg-red-50 focus:border-red-600 focus:ring-red-200"
-                              : isModified
-                              ? "border-blue-500 bg-blue-50 focus:border-blue-600 focus:ring-blue-200"
-                              : "border-input bg-background hover:border-gray-400 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                          }`}
-                          value={String(row[colIdx] ?? "")}
-                          onChange={(e) => handleInputChange(rowIdx, colIdx, e.target.value)}
-                          placeholder={header === "null" ? "Not mapped" : `Enter ${header}`}
-                          disabled={header === "null"}
-                        />
-                        {hasError && (
-                          <div className={`text-xs ${
-                            isRelError ? "text-red-700 font-medium" : "text-red-600"
-                          }`}>
-                            {cellError}
-                          </div>
-                        )}
-                        {isModified && !hasError && (
-                          <div className="text-xs text-blue-600 font-medium">
-                            Modified
-                          </div>
-                        )}
+                    <TableCell key={colIdx} className="p-0 h-20">
+                      <div className="h-full flex flex-col justify-center px-3 py-2">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            className={`w-full border rounded px-3 py-2 text-sm transition-colors resize-none ${
+                              hasError
+                                ? isRelError
+                                  ? "border-red-600 bg-red-50 text-red-800 focus:border-red-700 focus:ring-red-200"
+                                  : "border-red-500 bg-red-50 focus:border-red-600 focus:ring-red-200"
+                                : isModified
+                                ? "border-blue-500 bg-blue-50 focus:border-blue-600 focus:ring-blue-200"
+                                : "border-input bg-background hover:border-gray-400 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            }`}
+                            value={String(row[colIdx] ?? "")}
+                            onChange={(e) => handleInputChange(rowIdx, colIdx, e.target.value)}
+                            placeholder={header === "null" ? "Not mapped" : `Enter ${header}`}
+                            disabled={header === "null"}
+                            style={{ minHeight: '36px' }}
+                          />
+                        </div>
+                        
+                        {/* Fixed height container for status messages to prevent layout shifts */}
+                        <div className="h-5 mt-1 flex items-center">
+                          {hasError ? (
+                            <div className={`text-xs truncate ${
+                              isRelError ? "text-red-700 font-medium" : "text-red-600"
+                            }`}>
+                              {cellError}
+                            </div>
+                          ) : isModified ? (
+                            <div className="text-xs text-blue-600 font-medium">
+                              Modified
+                            </div>
+                          ) : (
+                            <div className="text-xs text-transparent">
+                              &nbsp;
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                   );
