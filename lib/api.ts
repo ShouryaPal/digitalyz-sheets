@@ -38,4 +38,60 @@ export async function mapHeadersWithGemini(
       reasoning: `API Error: ${error instanceof Error ? error.message : "Unknown error"}`,
     };
   }
+}
+
+export async function processNaturalLanguageRequest(
+  request: string,
+  entities: any,
+  context?: any
+): Promise<any> {
+  try {
+    const response = await fetch('/api/ai/natural-language', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        request,
+        entities,
+        context,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error processing natural language request:', error);
+    throw error;
+  }
+}
+
+export async function getRuleSuggestions(
+  entities: any,
+  existingRules: any[] = []
+): Promise<any> {
+  try {
+    const response = await fetch('/api/ai/rule-suggestions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        entities,
+        existingRules,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting rule suggestions:', error);
+    throw error;
+  }
 } 

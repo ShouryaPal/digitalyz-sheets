@@ -13,9 +13,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2,
   FileSpreadsheet,
+  Settings,
+  Database,
 } from "lucide-react";
 import { EntityCard } from "@/components/EntityCard";
 import { GlobalDownloadButton } from "@/components/GlobalDownloadButton";
+import { BusinessRulesManager } from "@/components/BusinessRulesManager";
 import { 
   validateRow,
   validatePriorityLevel,
@@ -51,6 +54,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"data" | "rules">("data");
 
   const handleClearErrors = (entityType: EntityType, rowIdx: number, colIdx: number) => {
     setErrors(prev => {
@@ -290,6 +294,7 @@ export default function Home() {
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {/* File Upload Section */}
             <div className="space-y-2">
               <Label htmlFor="file-upload" className="text-sm font-medium">
                 Choose File
@@ -318,42 +323,70 @@ export default function Home() {
               </Alert>
             )}
 
+            {/* Tab Navigation */}
             {hasData && (
-              <div className="flex justify-end">
-                <GlobalDownloadButton entities={entities} />
+              <div className="flex border-b">
+                <button
+                  onClick={() => setActiveTab("data")}
+                  className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+                    activeTab === "data"
+                      ? "border-indigo-500 text-indigo-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  <Database className="h-4 w-4 inline mr-2" />
+                  Data Management
+                </button>
+                <button
+                  onClick={() => setActiveTab("rules")}
+                  className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+                    activeTab === "rules"
+                      ? "border-indigo-500 text-indigo-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  <Settings className="h-4 w-4 inline mr-2" />
+                  Business Rules
+                </button>
               </div>
             )}
-            
-            {(entities.clients.data.length > 0 ||
-              entities.workers.data.length > 0 ||
-              entities.tasks.data.length > 0) && (
-              <div className="space-y-8">
-                {(["clients", "workers", "tasks"] as EntityType[]).map(
-                  (entity) =>
-                    entities[entity].data.length > 0 ? (
-                      <EntityCard
-                        key={entity}
-                        entity={entity}
-                        entityData={entities[entity]}
-                        errors={errors[entity]}
-                        onEdit={(rowIdx, colIdx, value) =>
-                          handleEdit(entity, rowIdx, colIdx, value)
-                        }
-                        onClearErrors={handleClearErrors}
-                      />
-                    ) : null,
+
+            {/* Tab Content */}
+            {activeTab === "data" && (
+              <>
+                {hasData && (
+                  <div className="flex justify-end">
+                    <GlobalDownloadButton entities={entities} />
+                  </div>
                 )}
-              </div>
+                
+                {(entities.clients.data.length > 0 ||
+                  entities.workers.data.length > 0 ||
+                  entities.tasks.data.length > 0) && (
+                  <div className="space-y-8">
+                    {(["clients", "workers", "tasks"] as EntityType[]).map(
+                      (entity) =>
+                        entities[entity].data.length > 0 ? (
+                          <EntityCard
+                            key={entity}
+                            entity={entity}
+                            entityData={entities[entity]}
+                            errors={errors[entity]}
+                            onEdit={(rowIdx, colIdx, value) =>
+                              handleEdit(entity, rowIdx, colIdx, value)
+                            }
+                            onClearErrors={handleClearErrors}
+                          />
+                        ) : null,
+                    )}
+                  </div>
+                )}
+              </>
             )}
-            <div className="mt-8">
-              <Label className="text-md font-medium">
-                Natural Language Search (coming soon)
-              </Label>
-              <Input
-                disabled
-                placeholder="e.g. Show all tasks with duration > 1 and phase 2 in preferred phases"
-              />
-            </div>
+
+            {activeTab === "rules" && (
+              <BusinessRulesManager entities={entities} />
+            )}
           </CardContent>
         </Card>
       </div>
