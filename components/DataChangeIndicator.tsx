@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useUpdatedData } from '@/hooks/useUpdatedData';
+import { useUpdatedData } from '@/lib/hooks/useUpdatedData';
 import { EntityType } from '@/types/entities';
 
 interface DataChangeIndicatorProps {

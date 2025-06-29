@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { EditableGrid } from './EditableGrid';
 import { DataChangeIndicator } from './DataChangeIndicator';
-import { useUpdatedData } from '@/hooks/useUpdatedData';
+import { useUpdatedData } from '@/lib/hooks/useUpdatedData';
 import { EntityType } from '@/types/entities';
+
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
 
 interface ExampleUsageProps {
   entityType: EntityType;
 }
 
 export function ExampleUsage({ entityType }: ExampleUsageProps) {
-  const [data, setData] = useState<any[][]>([
+  const [data, setData] = useState<CellValue[][]>([
     ['1', 'John Doe', 'High', 'task1,task2', 'GroupA', '{"attr1": "value1"}'],
     ['2', 'Jane Smith', 'Medium', 'task3', 'GroupB', '{"attr2": "value2"}'],
   ]);
@@ -22,7 +25,7 @@ export function ExampleUsage({ entityType }: ExampleUsageProps) {
   
   const { getUpdatedData, resetEntity } = useUpdatedData(entityType);
 
-  const handleEdit = (rowIdx: number, colIdx: number, value: any) => {
+  const handleEdit = (rowIdx: number, colIdx: number, value: CellValue) => {
     // Update local state
     const newData = [...data];
     if (!newData[rowIdx]) {

@@ -1,21 +1,24 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 
-export async function processCSVFile(file: File): Promise<{ headers: string[]; data: any[][] }[]> {
-  const parsed = await new Promise<any>((resolve, reject) => {
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
+export async function processCSVFile(file: File): Promise<{ headers: string[]; data: CellValue[][] }[]> {
+  const parsed = await new Promise<CellValue[][]>((resolve, reject) => {
     Papa.parse(file, {
-      complete: (results) => resolve(results.data),
+      complete: (results) => resolve(results.data as CellValue[][]),
       error: (err) => reject(err),
     });
   });
 
-  const data = parsed as any[][];
+  const data = parsed as CellValue[][];
   if (!data.length) {
     throw new Error("CSV file is empty.");
   }
 
-  let currentSection: any[][] = [];
-  const sections: { headers: string[]; data: any[][] }[] = [];
+  let currentSection: CellValue[][] = [];
+  const sections: { headers: string[]; data: CellValue[][] }[] = [];
   
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
@@ -32,7 +35,7 @@ export async function processCSVFile(file: File): Promise<{ headers: string[]; d
     if (isEmptyRow) {
       if (currentSection.length > 1) {
         sections.push({
-          headers: currentSection[0],
+          headers: currentSection[0].map(cell => String(cell ?? '')),
           data: currentSection.slice(1),
         });
       }
@@ -44,34 +47,40 @@ export async function processCSVFile(file: File): Promise<{ headers: string[]; d
 
   if (currentSection.length > 1) {
     sections.push({
-      headers: currentSection[0],
+      headers: currentSection[0].map(cell => String(cell ?? '')),
       data: currentSection.slice(1),
     });
   }
   if (sections.length === 0 && data.length > 1) {
-    sections.push({ headers: data[0], data: data.slice(1) });
+    sections.push({ 
+      headers: data[0].map(cell => String(cell ?? '')), 
+      data: data.slice(1) 
+    });
   }
 
   return sections;
 }
 
-export async function processXLSXFile(file: File): Promise<{ headers: string[]; data: any[][] }[]> {
-  const parsed = await new Promise<any>((resolve, reject) => {
+export async function processXLSXFile(file: File): Promise<{ headers: string[]; data: CellValue[][] }[]> {
+  const parsed = await new Promise<{ headers: string[]; data: CellValue[][] }[]>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: "array" });
-        const allSections: { headers: string[]; data: any[][] }[] = [];
+        const allSections: { headers: string[]; data: CellValue[][] }[] = [];
 
         workbook.SheetNames.forEach((sheetName) => {
           const worksheet = workbook.Sheets[sheetName];
           const json = XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
-          }) as any[][];
+          }) as CellValue[][];
 
           if (json.length > 0) {
-            allSections.push({ headers: json[0], data: json.slice(1) });
+            allSections.push({ 
+              headers: json[0].map(cell => String(cell ?? '')), 
+              data: json.slice(1) 
+            });
           }
         });
         resolve(allSections);
@@ -83,5 +92,5 @@ export async function processXLSXFile(file: File): Promise<{ headers: string[]; 
     reader.readAsArrayBuffer(file);
   });
 
-  return parsed as { headers: string[]; data: any[][] }[];
+  return parsed;
 } 

@@ -11,10 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { EntityType } from "@/types/entities";
 import { useUpdatedDataStore } from "@/lib/updatedDataStore";
 
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
 interface EditableGridProps {
-  data: any[][];
+  data: CellValue[][];
   headers: string[];
-  onEdit: (rowIdx: number, colIdx: number, value: any) => void;
+  onEdit: (rowIdx: number, colIdx: number, value: CellValue) => void;
   errors?: Record<string, string>;
   entityType: EntityType;
 }
@@ -44,7 +47,7 @@ export function EditableGrid({
     getModifiedCells
   } = useUpdatedDataStore();
 
-  const [localData, setLocalData] = useState<any[][]>([]);
+  const [localData, setLocalData] = useState<CellValue[][]>([]);
   useEffect(() => {
     if (data && data.length > 0) {
       initializeData(entityType, data);
@@ -166,11 +169,6 @@ export function EditableGrid({
           </TableHeader>
           <TableBody>
             {filteredData.map((row, rowIdx) => {
-              const originalRowIdx = localData.findIndex(originalRow => 
-                originalRow === row || 
-                (originalRow.length === row.length && originalRow.every((cell, idx) => cell === row[idx]))
-              );
-              
               return (
               <TableRow key={rowIdx}>
                 {headers.map((header, colIdx) => {
@@ -193,7 +191,7 @@ export function EditableGrid({
                               ? "border-blue-500 bg-blue-50 focus:border-blue-600 focus:ring-blue-200"
                               : "border-input bg-background hover:border-gray-400 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                           }`}
-                          value={row[colIdx] ?? ""}
+                          value={String(row[colIdx] ?? "")}
                           onChange={(e) => handleInputChange(rowIdx, colIdx, e.target.value)}
                           placeholder={header === "null" ? "Not mapped" : `Enter ${header}`}
                           disabled={header === "null"}

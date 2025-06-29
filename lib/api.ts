@@ -1,8 +1,11 @@
 import { MappingResult } from "@/types/entities";
 
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
 export async function mapHeadersWithGemini(
   rawHeaders: string[],
-  sampleRows: any[][],
+  sampleRows: CellValue[][],
 ): Promise<MappingResult> {
   try {
     const res = await fetch("/api/gemini-map", {

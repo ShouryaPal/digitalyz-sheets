@@ -1,22 +1,25 @@
 import { create } from 'zustand';
 import { EntityType } from '@/types/entities';
 
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
 interface UpdatedDataState {
   // Store updated data for each entity type
-  updatedData: Record<EntityType, any[][]>;
+  updatedData: Record<EntityType, CellValue[][]>;
   
   // Store the original data for comparison
-  originalData: Record<EntityType, any[][]>;
+  originalData: Record<EntityType, CellValue[][]>;
   
   // Track which cells have been modified
   modifiedCells: Record<EntityType, Set<string>>;
   
   // Actions
-  initializeData: (entityType: EntityType, data: any[][]) => void;
-  updateCell: (entityType: EntityType, rowIdx: number, colIdx: number, value: any) => void;
+  initializeData: (entityType: EntityType, data: CellValue[][]) => void;
+  updateCell: (entityType: EntityType, rowIdx: number, colIdx: number, value: CellValue) => void;
   resetEntity: (entityType: EntityType) => void;
   resetAll: () => void;
-  getUpdatedData: (entityType: EntityType) => any[][];
+  getUpdatedData: (entityType: EntityType) => CellValue[][];
   hasChanges: (entityType: EntityType) => boolean;
   getModifiedCells: (entityType: EntityType) => string[];
 }
@@ -40,7 +43,7 @@ export const useUpdatedDataStore = create<UpdatedDataState>((set, get) => ({
     tasks: new Set()
   },
 
-  initializeData: (entityType: EntityType, data: any[][]) => {
+  initializeData: (entityType: EntityType, data: CellValue[][]) => {
     set((state) => ({
       updatedData: {
         ...state.updatedData,
@@ -57,7 +60,7 @@ export const useUpdatedDataStore = create<UpdatedDataState>((set, get) => ({
     }));
   },
 
-  updateCell: (entityType: EntityType, rowIdx: number, colIdx: number, value: any) => {
+  updateCell: (entityType: EntityType, rowIdx: number, colIdx: number, value: CellValue) => {
     set((state) => {
       const newUpdatedData = { ...state.updatedData };
       const newModifiedCells = { ...state.modifiedCells };

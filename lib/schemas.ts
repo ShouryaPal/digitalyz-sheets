@@ -36,7 +36,7 @@ export const taskSchema = z.object({
     .min(1, "MaxConcurrent must be at least 1"),
 });
 
-export const entitySchemas: Record<EntityType, z.ZodObject<any>> = {
+export const entitySchemas: Record<EntityType, z.ZodObject<Record<string, z.ZodTypeAny>>> = {
   clients: clientSchema,
   workers: workerSchema,
   tasks: taskSchema,

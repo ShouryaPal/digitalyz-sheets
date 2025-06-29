@@ -1,7 +1,10 @@
 import { Entities, EntityType } from "@/types/entities";
 import * as XLSX from "xlsx";
 
-export function downloadEntityAsCSV(entityType: EntityType, entityData: { headers: string[]; data: any[][] }) {
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
+export function downloadEntityAsCSV(entityType: EntityType, entityData: { headers: string[]; data: CellValue[][] }) {
   const { headers, data } = entityData;
   
   // Filter out null headers (unmapped columns) and get their indices
@@ -42,7 +45,7 @@ export function downloadEntityAsCSV(entityType: EntityType, entityData: { header
   document.body.removeChild(link);
 }
 
-export function downloadEntityAsXLSX(entityType: EntityType, entityData: { headers: string[]; data: any[][] }) {
+export function downloadEntityAsXLSX(entityType: EntityType, entityData: { headers: string[]; data: CellValue[][] }) {
   const { headers, data } = entityData;
   
   // Filter out null headers (unmapped columns) and get their indices
@@ -76,7 +79,7 @@ export function downloadEntityAsXLSX(entityType: EntityType, entityData: { heade
 }
 
 export function downloadAllEntitiesAsCSV(entities: Entities) {
-  const allData: { entityType: string; headers: string[]; data: any[][] }[] = [];
+  const allData: { entityType: string; headers: string[]; data: CellValue[][] }[] = [];
   
   (Object.keys(entities) as EntityType[]).forEach(entityType => {
     const entityData = entities[entityType];
@@ -142,7 +145,7 @@ export function downloadAllEntitiesAsCSV(entities: Entities) {
 }
 
 export function downloadAllEntitiesAsXLSX(entities: Entities) {
-  const allData: { entityType: string; headers: string[]; data: any[][] }[] = [];
+  const allData: { entityType: string; headers: string[]; data: CellValue[][] }[] = [];
   
   (Object.keys(entities) as EntityType[]).forEach(entityType => {
     const entityData = entities[entityType];

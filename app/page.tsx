@@ -31,6 +31,9 @@ import { mapHeadersWithGemini } from "@/lib/api";
 import { processCSVFile, processXLSXFile } from "@/lib/fileProcessing";
 import { EntityType, Entities, ValidationErrors } from "@/types/entities";
 
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
 export default function Home() {
   const [entities, setEntities] = useState<Entities>({
     clients: { headers: [], data: [] },
@@ -65,7 +68,7 @@ export default function Home() {
 
     try {
       const ext = file.name.split(".").pop()?.toLowerCase();
-      let sections: { headers: string[]; data: any[][] }[] = [];
+      let sections: { headers: string[]; data: CellValue[][] }[] = [];
 
       if (ext === "csv") {
         setProcessingStatus("Parsing CSV...");
@@ -129,11 +132,7 @@ export default function Home() {
         const schema = entitySchemas[entity];
 
         data.forEach((row, rowIdx) => {
-          const rowObj = Object.fromEntries(
-            headers.map((h, i) => [h === "null" ? `unknown_${i}` : h, row[i]]),
-          );
-
-          const rowErrors = validateRow(schema, rowObj, rowIdx, headers);
+          const rowErrors = validateRow(schema, row, rowIdx, headers);
           Object.assign(newErrors[entity], rowErrors);
 
           headers.forEach((header, colIdx) => {
@@ -190,7 +189,7 @@ export default function Home() {
     entity: EntityType,
     rowIdx: number,
     colIdx: number,
-    value: any,
+    value: CellValue,
   ) {
     setEntities((prev) => {
       const updated = { ...prev };
@@ -210,20 +209,9 @@ export default function Home() {
         const headers = entities[entity].headers;
         const newData = [...entities[entity].data];
         newData[rowIdx][colIdx] = value;
-        const rowObj = Object.fromEntries(
-          headers.map((h, i) => [
-            h === "null" ? `unknown_${i}` : h,
-            newData[rowIdx][i],
-          ]),
-        );
-
-        Object.keys(updated[entity]).forEach((key) => {
-          if (key.startsWith(`${rowIdx}-`)) delete updated[entity][key];
-        });
-
         const rowErrors = validateRow(
           entitySchemas[entity],
-          rowObj,
+          newData[rowIdx],
           rowIdx,
           headers,
         );

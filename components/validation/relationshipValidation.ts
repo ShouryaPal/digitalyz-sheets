@@ -1,9 +1,12 @@
 import { MappingResult } from "@/types/entities";
 
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
+
 export function validateRelationships(entities: {
-  clients: { headers: string[]; data: any[][]; mappingInfo?: MappingResult };
-  workers: { headers: string[]; data: any[][]; mappingInfo?: MappingResult };
-  tasks: { headers: string[]; data: any[][]; mappingInfo?: MappingResult };
+  clients: { headers: string[]; data: CellValue[][]; mappingInfo?: MappingResult };
+  workers: { headers: string[]; data: CellValue[][]; mappingInfo?: MappingResult };
+  tasks: { headers: string[]; data: CellValue[][]; mappingInfo?: MappingResult };
 }): Record<string, string> {
   const relationshipErrors: Record<string, string> = {};
 

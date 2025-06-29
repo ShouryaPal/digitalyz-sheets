@@ -10,13 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle, Info } from "lucide-react";
 import { EditableGrid } from "./EditableGrid";
-import { EntityType, EntityData, ValidationErrors } from "@/types/entities";
+import { EntityType, EntityData } from "@/types/entities";
+
+// Define a more specific type for cell values
+type CellValue = string | number | boolean | null | undefined;
 
 interface EntityCardProps {
   entity: EntityType;
   entityData: EntityData;
   errors: Record<string, string>;
-  onEdit: (rowIdx: number, colIdx: number, value: any) => void;
+  onEdit: (rowIdx: number, colIdx: number, value: CellValue) => void;
 }
 
 export function EntityCard({
